@@ -1,16 +1,16 @@
 #[derive(Debug)]
 pub(crate) struct Job {
     id: u32,
-    status: JobStatus,
-    command: String,
-    attempt: u32,
-    max_attempts: u32,
-    pid: Option<u32>,
-    stdout_path: Option<String>,
-    stderr_path: Option<String>,
-    created_at: Option<u64>,
-    updated_at: Option<u64>,
-    finished_at: Option<u64>,
+    pub(crate) status: JobStatus,
+    pub(crate) command: String,
+    pub(crate) attempt: u32,
+    pub(crate) max_attempts: u32,
+    pub(crate) pid: Option<u32>,
+    pub(crate) stdout_path: Option<String>,
+    pub(crate) stderr_path: Option<String>,
+    pub(crate) created_at: Option<u64>,
+    pub(crate) updated_at: Option<u64>,
+    pub(crate) finished_at: Option<u64>,
 }
 
 #[derive(Debug)]
