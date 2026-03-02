@@ -5,6 +5,7 @@ use crate::job::{Job, JobStatus};
 pub(crate) struct JobExecutor {
     // Fields for managing job execution, such as worker threads, queues, etc.
     shell: String,
+    shell_arg: String,
 }
 
 #[derive(Debug)]
@@ -25,20 +26,21 @@ pub enum JobExecutionFailure {
 impl JobExecutor {
     pub(crate) fn new() -> Self {
         Self {
-            shell: "/bin/bash".to_string()
+            shell: "/bin/bash".to_string(),
+            shell_arg: "-c".to_string(),
         }
     }
 
     pub(crate) fn execute(&self, job: &Job) -> Result<JobExecutionResult, JobExecutionFailure> {
         // Logic to execute the job using the specified shell
         // This could involve spawning a process, handling output, etc.
-        if !matches!(job.status, JobStatus::Queued) {
+        if !matches!(job.status, JobStatus::Queued | JobStatus::Running) {
             return Err(JobExecutionFailure::JobStatusInvalid(
                 format!("Job {:?} is not in a valid state for execution", job.id())
             ));
         }
         let result = std::process::Command::new(&self.shell)
-            .arg("-c")
+            .arg(&self.shell_arg)
             .arg(&job.command)
             .output();
 

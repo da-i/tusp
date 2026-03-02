@@ -14,11 +14,6 @@ pub(crate) struct Job {
 }
 
 #[derive(Debug)]
-pub(crate) struct JobRepository {
-    jobs: Vec<Job>,
-}
-
-#[derive(Debug)]
 pub(crate) enum JobStatus {
     Success { status_code: i32 },
     Queued,
