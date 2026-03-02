@@ -1,28 +1,39 @@
-  use std::{process::Output, result};
+use crate::job::Job;
 
-use crate::job::{Job, JobStatus};
+struct JobNode{
+    name: String,
+    capacity: usize,
+}
 
 pub(crate) struct JobScheduler {
     max_jobs: usize,
-    jobs: Vec<Job>,
+    nodes: Vec<JobNode>,
 }
 
 impl JobScheduler {
     pub(crate) fn new(max_jobs: usize) -> Self {
         JobScheduler {
             max_jobs,
-            jobs: Vec::new(),
+            nodes: vec![JobNode { name: "default".to_string(), capacity: 1 }],
         }
     }
- 
-    pub(crate) fn add_job(&mut self, job: Job) {
-        self.jobs.push(job);
+
+    pub(crate) fn can_schedule_more(&self, running_jobs: usize) -> bool {
+        let cluster_capacity: usize = self.nodes.iter().map(|node| node.capacity).sum();
+        let effective_capacity = self.max_jobs.min(cluster_capacity);
+        running_jobs < effective_capacity
     }
 
-    pub(crate) fn get_job(&self, job_id: u32) -> Option<&Job> {
-        self.jobs.iter().find(|job| job.id() == job_id)
-    }
-    
+    pub(crate) fn select_node_for_job(&self, _job: &Job, running_jobs: usize) -> Option<String> {
+        if !self.can_schedule_more(running_jobs) {
+            return None;
+        }
 
-    // Additional methods for scheduling, executing, and managing jobs can be added here
+        self.nodes
+            .iter()
+            .find(|node| node.capacity > 0)
+            .map(|node| node.name.clone())
+    }
+
+    // Additional methods for scheduling, and managing nodes can be added here
 }

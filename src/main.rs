@@ -2,17 +2,33 @@ mod job;
 mod scheduler;
 mod executor;
 mod repository;
+mod daemon;
+
+use std::env;
+
+const IPC_SOCKET_PATH: &str = "/tmp/tusp.sock";
 
 fn main() {
-    println!("Hello, world!");
-    let mut sced = scheduler::JobScheduler::new(1);
-    let mut exec = executor::JobExecutor::new();
-    let mut job = job::Job::new(1, "touch Hello_World.txt".to_string(), 3);
-    let mut repo = repository::MemJobRepository::new();
-    repo.add_job(job);
-    
+    let args: Vec<String> = env::args().collect();
 
-    let exec_job = repo.get_next_executable_job().expect("'Failed to get job'");
-    let result = exec.execute(exec_job).expect("'Job exec failed'");
-    println!("Job executed with result: {:?}", result);    
+    match args.get(1).map(String::as_str) {
+        Some("daemon") => daemon::run_daemon(IPC_SOCKET_PATH),
+        Some("submit") => {
+            if args.len() < 3 {
+                eprintln!("Usage: tusp submit <command>");
+                std::process::exit(1);
+            }
+
+            let command = args[2..].join(" ");
+            if let Err(error) = daemon::submit_job(IPC_SOCKET_PATH, &command) {
+                eprintln!("Failed to submit job: {error}");
+                std::process::exit(1);
+            }
+        }
+        _ => {
+            eprintln!("Usage:\n  tusp daemon\n  tusp submit <command>");
+            std::process::exit(1);
+        }
+    }
 }
+
