@@ -1,3 +1,5 @@
+use std::time::{SystemTime, UNIX_EPOCH};
+
 #[derive(Debug)]
 pub(crate) struct Job {
     id: u32,
@@ -30,6 +32,7 @@ pub(crate) enum JobFailureReason {
 
 impl Job {
     pub(crate) fn new(id: u32,  command: String, max_attempts: u32) -> Self {
+        let now = now_unix_seconds();
         Self {
             id,
             status: JobStatus::Queued,
@@ -39,8 +42,8 @@ impl Job {
             pid: None,
             stdout_path: None,
             stderr_path: None,
-            created_at: None,
-            updated_at: None,
+            created_at: Some(now),
+            updated_at: Some(now),
             finished_at: None,
         }
     }
@@ -51,7 +54,51 @@ impl Job {
 
     pub(crate) fn set_status(&mut self, status: JobStatus) {
         self.status = status;
+        self.updated_at = Some(now_unix_seconds());
+        if self.is_terminal() {
+            self.finished_at = self.updated_at;
+        }
     }
+
+    pub(crate) fn status_label(&self) -> &'static str {
+        match self.status {
+            JobStatus::Success { .. } => "SUCCESS",
+            JobStatus::Queued => "QUEUED",
+            JobStatus::Running => "RUNNING",
+            JobStatus::Failure { .. } => "FAILURE",
+            JobStatus::Cancelled { .. } => "CANCELLED",
+        }
+    }
+
+    pub(crate) fn age_seconds(&self) -> u64 {
+        let now = now_unix_seconds();
+
+        let age = self.finished_at.unwrap_or(self.created_at.unwrap_or(now));
+        
+        now - age
+
+    }
+    pub(crate) fn runtime_seconds(&self) -> u64 {
+        // Zero if not finished, otherwise the difference between finished_at and created_at
+        match (self.created_at, self.finished_at) {
+            (Some(created_at), Some(finished_at)) => finished_at.saturating_sub(created_at),
+            _ => 0,
+        }
+    }
+
+    fn is_terminal(&self) -> bool {
+        matches!(
+            self.status,
+            JobStatus::Success { .. } | JobStatus::Failure { .. } | JobStatus::Cancelled { .. }
+        )
+    }
+}
+
+fn now_unix_seconds() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_secs()
 }
 
 // tests

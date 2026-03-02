@@ -52,6 +52,12 @@ impl MemJobRepository {
             .count()
     }
 
+    pub(crate) fn list_jobs(&self) -> Vec<&Job> {
+        let mut jobs: Vec<&Job> = self.jobs.values().collect();
+        jobs.sort_by_key(|job| job.id());
+        jobs
+    }
+
     pub(crate) fn update_job_status(&mut self, job_id: u32, new_status: JobStatus) {
         if let Some(job) = self.jobs.get_mut(&job_id) {
             job.set_status(new_status);

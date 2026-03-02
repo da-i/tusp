@@ -25,8 +25,14 @@ fn main() {
                 std::process::exit(1);
             }
         }
+        Some("list") => {
+            if let Err(error) = daemon::list_jobs(IPC_SOCKET_PATH) {
+                eprintln!("Failed to list jobs: {error}");
+                std::process::exit(1);
+            }
+        }
         _ => {
-            eprintln!("Usage:\n  tusp daemon\n  tusp submit <command>");
+            eprintln!("Usage:\n  tusp daemon\n  tusp submit <command>\n  tusp list");
             std::process::exit(1);
         }
     }

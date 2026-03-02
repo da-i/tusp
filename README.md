@@ -21,6 +21,9 @@ tusp daemon
 
 # terminal 2
 tusp submit "echo hello from tusp"
+tusp list
+ID  CMD     STATUS   Time
+1   echo... SUCCESS  2s
 
 # IPC socket
 # /tmp/tusp.sock
@@ -28,6 +31,8 @@ tusp submit "echo hello from tusp"
 
 
 ## Developer
+
+Currently the daemon is blocked whist a process is executing
 
 ### responsibilities
 1. job
