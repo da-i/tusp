@@ -31,14 +31,6 @@ impl MemJobRepository {
         self.jobs.get(&id)
     }
 
-    pub(crate) fn get_job_mut(&mut self, id: u32) -> Option<&mut Job> {
-        self.jobs.get_mut(&id)
-    }
-
-    pub(crate) fn get_next_executable_job(&mut self) -> Option<&mut Job> {
-        self.jobs.values_mut().find(|job| matches!(job.status, JobStatus::Queued))
-    }
-
     pub(crate) fn get_next_queued_job_id(&self) -> Option<u32> {
         self.jobs
             .iter()
