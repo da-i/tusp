@@ -32,7 +32,17 @@ ID  CMD     STATUS   Time
 
 ## Developer
 
-Currently the daemon is blocked whist a process is executing
+### Next tasks:
+1. Currently the daemon is blocked whist a process is executing, so we need multiprocessing in exec.
+1. Add simple implementation of node, local only atm
+1. Add option to change capacity of node
+2. Add weight to job, and allow for multiple jobs to be executed until weight is exceded.
+2. clean up unused functions from playing around
+3. Allow user to cancel job
+3. Add more node logic
+3. Allow to run cmd via ssh on other node
+
+
 
 ### responsibilities
 1. job
